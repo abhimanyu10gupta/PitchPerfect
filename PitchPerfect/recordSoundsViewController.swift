@@ -23,26 +23,16 @@ class recordSoundsViewController: UIViewController , AVAudioRecorderDelegate {
         // Do any additional setup after loading the view, typically from a nib.
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
     @IBAction func recordAudio(_ sender: AnyObject) {
-        print("record button pressed")
         recordingLabel.text = "Recording in Progress"
-        recordButton.isEnabled = false
-        stopRecordingButton.isEnabled = true
-        
+        buttonDisable(type: true)
         let dirPath = NSSearchPathForDirectoriesInDomains(.documentDirectory,.userDomainMask, true)[0] as String
         let recordingName = "recordedVoice.wav"
         let pathArray = [dirPath, recordingName]
         let filePath = NSURL.fileURL(withPathComponents: pathArray)
         print(filePath)
-        
         let session = AVAudioSession.sharedInstance()
         try! session.setCategory(AVAudioSessionCategoryPlayAndRecord)
-        
         try! audioRecorder = AVAudioRecorder(url: filePath!, settings: [:])
         audioRecorder.delegate = self
         audioRecorder.isMeteringEnabled = true
@@ -52,17 +42,21 @@ class recordSoundsViewController: UIViewController , AVAudioRecorderDelegate {
 
     @IBAction func stopRecording(_ sender: AnyObject) {
         recordingLabel.text = "Tap to Record"
-        recordButton.isEnabled = true
-        stopRecordingButton.isEnabled = false
+        buttonDisable(type: false)
         audioRecorder.stop()
         let audioSession = AVAudioSession.sharedInstance()
         try! audioSession.setActive(false)
     }
+    
+    func buttonDisable(type : Bool) -> Void {
+            recordButton.isEnabled = !type
+            stopRecordingButton.isEnabled = type
+        }
+    
    
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag:Bool){
-        print("av recorder finished recording")
         if (flag) {
-            self.performSegue(withIdentifier: "stopRecording", sender:audioRecorder.url)
+            performSegue(withIdentifier: "stopRecording", sender:audioRecorder.url)
         } else {
             print("Saving od Recording Failed")
         }
@@ -76,8 +70,5 @@ class recordSoundsViewController: UIViewController , AVAudioRecorderDelegate {
             playSoundsVC.recordedAudioURL = recordedAudioURL
         }
     }
-    
-
-
 }
 
